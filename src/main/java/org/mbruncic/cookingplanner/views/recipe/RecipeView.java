@@ -1,9 +1,5 @@
 package org.mbruncic.cookingplanner.views.recipe;
 
-import java.util.Optional;
-
-import org.mbruncic.cookingplanner.data.entity.Person;
-import org.mbruncic.cookingplanner.data.service.PersonService;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -20,11 +16,14 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-
+import com.vaadin.flow.router.RouteAlias;
+import org.mbruncic.cookingplanner.data.entity.Recipe;
+import org.mbruncic.cookingplanner.data.service.RecipeService;
+import org.mbruncic.cookingplanner.views.main.MainView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.helpers.CrudServiceDataProvider;
-import org.mbruncic.cookingplanner.views.main.MainView;
-import com.vaadin.flow.router.RouteAlias;
+
+import java.util.Optional;
 
 @Route(value = "recipe", layout = MainView.class)
 @PageTitle("Recipe")
@@ -32,38 +31,38 @@ import com.vaadin.flow.router.RouteAlias;
 @RouteAlias(value = "", layout = MainView.class)
 public class RecipeView extends Div {
 
-    private Grid<Person> grid;
+    private Grid<Recipe> grid;
 
-    private TextField firstName = new TextField();
-    private TextField lastName = new TextField();
-    private TextField email = new TextField();
+    private TextField name = new TextField();
+    private TextField description = new TextField();
 
     private Button cancel = new Button("Cancel");
     private Button save = new Button("Save");
+    private Button delete = new Button("Delete");
 
-    private Binder<Person> binder;
+    private Binder<Recipe> binder;
 
-    private Person person = new Person();
+    private Recipe recipe = new Recipe();
 
-    private PersonService personService;
+    private RecipeService recipeService;
 
-    public RecipeView(@Autowired PersonService personService) {
+    public RecipeView(@Autowired RecipeService recipeService) {
         setId("recipe-view");
-        this.personService = personService;
+        this.recipeService = recipeService;
         // Configure Grid
-        grid = new Grid<>(Person.class);
-        grid.setColumns("firstName", "lastName", "email");
-        grid.setDataProvider(new CrudServiceDataProvider<Person, Void>(personService));
+        grid = new Grid<>(Recipe.class);
+        grid.setColumns("name");
+        grid.setDataProvider(new CrudServiceDataProvider<Recipe, Void>(recipeService));
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 
         // when a row is selected or deselected, populate form
         grid.asSingleSelect().addValueChangeListener(event -> {
             if (event.getValue() != null) {
-                Optional<Person> personFromBackend= personService.get(event.getValue().getId());
+                Optional<Recipe> recipeFromBackend= recipeService.get(event.getValue().getId());
                 // when a row is selected but the data is no longer available, refresh grid
-                if(personFromBackend.isPresent()){
-                    populateForm(personFromBackend.get());
+                if(recipeFromBackend.isPresent()){
+                    populateForm(recipeFromBackend.get());
                 } else {
                     refreshGrid();
                 }
@@ -73,7 +72,7 @@ public class RecipeView extends Div {
         });
 
         // Configure Form
-        binder = new Binder<>(Person.class);
+        binder = new Binder<>(Recipe.class);
 
         // Bind fields. This where you'd define e.g. validation rules
         binder.bindInstanceFields(this);
@@ -85,17 +84,26 @@ public class RecipeView extends Div {
 
         save.addClickListener(e -> {
             try {
-                if (this.person == null) {
-                    this.person = new Person();
+                if (this.recipe == null) {
+                    this.recipe = new Recipe();
                 }
-                binder.writeBean(this.person);
-                personService.update(this.person);
+                binder.writeBean(this.recipe);
+                recipeService.update(this.recipe);
                 clearForm();
                 refreshGrid();
-                Notification.show("Person details stored.");
+                Notification.show("Recipe details stored.");
             } catch (ValidationException validationException) {
-                Notification.show("An exception happened while trying to store the person details.");
+                Notification.show("An exception happened while trying to store the recipe details.");
             }
+        });
+
+        delete.addClickListener(e -> {
+           if (recipe != null){
+               recipeService.delete(recipe.getId());
+               clearForm();
+               refreshGrid();
+               Notification.show("Recipe deleted.");
+           }
         });
 
         SplitLayout splitLayout = new SplitLayout();
@@ -116,9 +124,8 @@ public class RecipeView extends Div {
         editorLayoutDiv.add(editorDiv);
 
         FormLayout formLayout = new FormLayout();
-        addFormItem(editorDiv, formLayout, firstName, "First name");
-        addFormItem(editorDiv, formLayout, lastName, "Last name");
-        addFormItem(editorDiv, formLayout, email, "Email");
+        addFormItem(editorDiv, formLayout, name, "Name");
+        addFormItem(editorDiv, formLayout, description, "Description");
         createButtonLayout(editorLayoutDiv);
 
         splitLayout.addToSecondary(editorLayoutDiv);
@@ -131,7 +138,8 @@ public class RecipeView extends Div {
         buttonLayout.setSpacing(true);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonLayout.add(save, cancel);
+        delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        buttonLayout.add(save, cancel, delete);
         editorLayoutDiv.add(buttonLayout);
     }
 
@@ -158,8 +166,8 @@ public class RecipeView extends Div {
         populateForm(null);
     }
 
-    private void populateForm(Person value) {
-        this.person = value;
-        binder.readBean(this.person);
+    private void populateForm(Recipe value) {
+        this.recipe = value;
+        binder.readBean(this.recipe);
     }
 }

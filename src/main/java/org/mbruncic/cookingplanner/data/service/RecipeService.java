@@ -1,23 +1,22 @@
 package org.mbruncic.cookingplanner.data.service;
 
-import org.mbruncic.cookingplanner.data.entity.Person;
+import org.mbruncic.cookingplanner.data.entity.Recipe;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
-import java.time.LocalDate;
 
 @Service
-public class PersonService extends CrudService<Person, Integer> {
+public class RecipeService extends CrudService<Recipe, Integer> {
 
-    private PersonRepository repository;
+    private RecipeRepository repository;
 
-    public PersonService(@Autowired PersonRepository repository) {
+    public RecipeService(@Autowired RecipeRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    protected PersonRepository getRepository() {
+    protected RecipeRepository getRepository() {
         return repository;
     }
 
