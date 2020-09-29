@@ -18,8 +18,8 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
-import org.mbruncic.cookingplanner.data.entity.Ingredient;
 import org.mbruncic.cookingplanner.data.entity.Recipe;
+import org.mbruncic.cookingplanner.data.entity.RecipeIngredient;
 import org.mbruncic.cookingplanner.data.service.RecipeService;
 import org.mbruncic.cookingplanner.views.main.MainView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class RecipeView extends Div {
 
     private TextField name = new TextField();
     private TextArea description = new TextArea();
-    private Grid<Ingredient> ingredients;
+    private Grid<RecipeIngredient> ingredients;
 
     private Button cancel = new Button("Cancel");
     private Button save = new Button("Save");
@@ -59,8 +59,8 @@ public class RecipeView extends Div {
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 
-        ingredients = new Grid<>(Ingredient.class);
-        ingredients.setColumns("name", "unit");
+        ingredients = new Grid<>(RecipeIngredient.class);
+        ingredients.setColumns("amount", "ingredient.name", "ingredient.unit");
 
         // when a row is selected or deselected, populate form
         grid.asSingleSelect().addValueChangeListener(event -> {
@@ -137,12 +137,22 @@ public class RecipeView extends Div {
         FormLayout formLayout = new FormLayout();
         addFormItem(editorDiv, formLayout, name, "Name");
         addFormItem(editorDiv, formLayout, description, "Description");
-        formLayout.addFormItem(ingredients, "Ingredients");
         editorDiv.add(formLayout);
-        ingredients.getElement().getClassList().add("full-width");
+
+        createIngredientsLayout(editorLayoutDiv);
+
         createButtonLayout(editorLayoutDiv);
 
         splitLayout.addToSecondary(editorLayoutDiv);
+    }
+
+    private void createIngredientsLayout(Div editorLayoutDiv) {
+        HorizontalLayout ingredientsLayout = new HorizontalLayout();
+        ingredientsLayout.setId("ingredients-layout");
+        ingredientsLayout.setWidthFull();
+        ingredientsLayout.setSpacing(true);
+        ingredientsLayout.add(ingredients);
+        editorLayoutDiv.add(ingredientsLayout);
     }
 
     private void createButtonLayout(Div editorLayoutDiv) {

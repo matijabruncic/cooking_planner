@@ -22,16 +22,13 @@ public String getDescription() {
 public void setDescription(String description) {
   this.description = description;
 }
-private Set<Ingredient> ingredients;
-@ManyToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
-@JoinTable( name = "Recipe_Ingredients",
-        joinColumns = { @JoinColumn( name="recipe_id" ) },
-        inverseJoinColumns = { @JoinColumn( name="ingredient_id" ) }
-)
-public Set<Ingredient> getIngredients() {
+private Set<RecipeIngredient> ingredients;
+@OneToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
+@JoinColumn( name = "recipe_id")
+public Set<RecipeIngredient> getIngredients() {
   return ingredients;
 }
-public void setIngredients(Set<Ingredient> ingredients) {
+public void setIngredients(Set<RecipeIngredient> ingredients) {
   this.ingredients = ingredients;
 }
 }
