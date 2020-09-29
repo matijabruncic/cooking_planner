@@ -11,12 +11,14 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import org.mbruncic.cookingplanner.data.entity.Ingredient;
 import org.mbruncic.cookingplanner.data.entity.Recipe;
 import org.mbruncic.cookingplanner.data.service.RecipeService;
 import org.mbruncic.cookingplanner.views.main.MainView;
@@ -34,7 +36,8 @@ public class RecipeView extends Div {
     private Grid<Recipe> grid;
 
     private TextField name = new TextField();
-    private TextField description = new TextField();
+    private TextArea description = new TextArea();
+    private Grid<Ingredient> ingredients;
 
     private Button cancel = new Button("Cancel");
     private Button save = new Button("Save");
@@ -56,13 +59,17 @@ public class RecipeView extends Div {
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 
+        ingredients = new Grid<>(Ingredient.class);
+        ingredients.setColumns("name", "unit");
+
         // when a row is selected or deselected, populate form
         grid.asSingleSelect().addValueChangeListener(event -> {
             if (event.getValue() != null) {
-                Optional<Recipe> recipeFromBackend= recipeService.get(event.getValue().getId());
+                Optional<Recipe> recipeFromBackend = recipeService.get(event.getValue().getId());
                 // when a row is selected but the data is no longer available, refresh grid
-                if(recipeFromBackend.isPresent()){
+                if (recipeFromBackend.isPresent()) {
                     populateForm(recipeFromBackend.get());
+                    populateIngredients(recipeFromBackend.get());
                 } else {
                     refreshGrid();
                 }
@@ -98,12 +105,12 @@ public class RecipeView extends Div {
         });
 
         delete.addClickListener(e -> {
-           if (recipe != null){
-               recipeService.delete(recipe.getId());
-               clearForm();
-               refreshGrid();
-               Notification.show("Recipe deleted.");
-           }
+            if (recipe != null) {
+                recipeService.delete(recipe.getId());
+                clearForm();
+                refreshGrid();
+                Notification.show("Recipe deleted.");
+            }
         });
 
         SplitLayout splitLayout = new SplitLayout();
@@ -113,6 +120,10 @@ public class RecipeView extends Div {
         createEditorLayout(splitLayout);
 
         add(splitLayout);
+    }
+
+    private void populateIngredients(Recipe recipe) {
+        ingredients.setItems(recipe.getIngredients());
     }
 
     private void createEditorLayout(SplitLayout splitLayout) {
@@ -126,6 +137,9 @@ public class RecipeView extends Div {
         FormLayout formLayout = new FormLayout();
         addFormItem(editorDiv, formLayout, name, "Name");
         addFormItem(editorDiv, formLayout, description, "Description");
+        formLayout.addFormItem(ingredients, "Ingredients");
+        editorDiv.add(formLayout);
+        ingredients.getElement().getClassList().add("full-width");
         createButtonLayout(editorLayoutDiv);
 
         splitLayout.addToSecondary(editorLayoutDiv);

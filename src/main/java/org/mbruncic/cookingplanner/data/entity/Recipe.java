@@ -2,7 +2,8 @@ package org.mbruncic.cookingplanner.data.entity;
 
 import org.mbruncic.cookingplanner.data.AbstractEntity;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 public class Recipe extends AbstractEntity {
@@ -20,5 +21,17 @@ public String getDescription() {
 }
 public void setDescription(String description) {
   this.description = description;
+}
+private Set<Ingredient> ingredients;
+@ManyToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
+@JoinTable( name = "Recipe_Ingredients",
+        joinColumns = { @JoinColumn( name="recipe_id" ) },
+        inverseJoinColumns = { @JoinColumn( name="ingredient_id" ) }
+)
+public Set<Ingredient> getIngredients() {
+  return ingredients;
+}
+public void setIngredients(Set<Ingredient> ingredients) {
+  this.ingredients = ingredients;
 }
 }
