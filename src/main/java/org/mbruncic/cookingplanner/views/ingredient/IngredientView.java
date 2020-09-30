@@ -30,19 +30,17 @@ import java.util.Optional;
 @CssImport("./styles/views/ingredient/ingredient-view.css")
 public class IngredientView extends Div {
 
-    private Grid<Ingredient> grid;
+    private final Grid<Ingredient> grid;
 
-    private TextField name = new TextField();
-    private Select<Unit> unit = new Select<>();
+    private final TextField name = new TextField();
+    private final Select<Unit> unit = new Select<>();
+    private final Button cancel = new Button("Cancel");
+    private final Button save = new Button("Save");
 
-    private Button cancel = new Button("Cancel");
-    private Button save = new Button("Save");
-
-    private Binder<Ingredient> binder;
-
+    private final Binder<Ingredient> binder;
     private Ingredient ingredient = new Ingredient();
 
-    private IngredientService ingredientService;
+    private final IngredientService ingredientService;
 
     public IngredientView(@Autowired IngredientService ingredientService) {
         setId("ingredient-view");
@@ -50,7 +48,7 @@ public class IngredientView extends Div {
         // Configure Grid
         grid = new Grid<>(Ingredient.class);
         grid.setColumns("name", "unit");
-        grid.setDataProvider(new CrudServiceDataProvider<Ingredient, Void>(ingredientService));
+        grid.setDataProvider(new CrudServiceDataProvider<Ingredient, Void>(this.ingredientService));
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 

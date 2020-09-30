@@ -37,23 +37,22 @@ import java.util.Optional;
 @CssImport("./styles/views/recipeIngredient/recipeIngredient-view.css")
 public class RecipeIngredientView extends Div {
 
-    private final IngredientService ingredientService;
-    private Grid<RecipeIngredient> grid;
+    private final Grid<RecipeIngredient> grid;
 
-    private IntegerField amount = new IntegerField();
-    private Select<Recipe> recipeSelect = new Select<>();
-    private Select<Ingredient> ingredientSelect = new Select<>();
+    private final IntegerField amount = new IntegerField();
+    private final Select<Recipe> recipeSelect = new Select<>();
+    private final Select<Ingredient> ingredientSelect = new Select<>();
 
-    private Button cancel = new Button("Cancel");
-    private Button save = new Button("Save");
-    private Button delete = new Button("Delete");
+    private final Button cancel = new Button("Cancel");
+    private final Button save = new Button("Save");
+    private final Button delete = new Button("Delete");
 
-    private Binder<RecipeIngredient> binder;
-
+    private final Binder<RecipeIngredient> binder;
     private RecipeIngredient recipeIngredient = new RecipeIngredient();
 
-    private RecipeIngredientService recipeIngredientService;
+    private final RecipeIngredientService recipeIngredientService;
     private final RecipeService recipeService;
+    private final IngredientService ingredientService;
 
     public RecipeIngredientView(@Autowired RecipeIngredientService recipeIngredientService
             , @Autowired RecipeService recipeService
@@ -97,14 +96,8 @@ public class RecipeIngredientView extends Div {
 
         // Bind fields. This where you'd define e.g. validation rules
         binder.bindInstanceFields(this);
-        binder.forField(recipeSelect)
-                .bind(it -> {
-                    return it.getRecipe();
-                }, (it, v) -> {
-                    it.setRecipe(v);
-                });
-        binder.forField(ingredientSelect)
-                .bind(RecipeIngredient::getIngredient, RecipeIngredient::setIngredient);
+        binder.forField(recipeSelect).bind(RecipeIngredient::getRecipe, RecipeIngredient::setRecipe);
+        binder.forField(ingredientSelect).bind(RecipeIngredient::getIngredient, RecipeIngredient::setIngredient);
 
         cancel.addClickListener(e -> {
             clearForm();
@@ -174,7 +167,8 @@ public class RecipeIngredientView extends Div {
         buttonLayout.setSpacing(true);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        buttonLayout.add(save, cancel);
+        delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        buttonLayout.add(save, cancel, delete);
         editorLayoutDiv.add(buttonLayout);
     }
 

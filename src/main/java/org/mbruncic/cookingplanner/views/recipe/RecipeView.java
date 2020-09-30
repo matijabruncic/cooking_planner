@@ -33,21 +33,19 @@ import java.util.Optional;
 @RouteAlias(value = "", layout = MainView.class)
 public class RecipeView extends Div {
 
-    private Grid<Recipe> grid;
+    private final Grid<Recipe> grid;
 
-    private TextField name = new TextField();
-    private TextArea description = new TextArea();
-    private Grid<RecipeIngredient> ingredients;
+    private final TextField name = new TextField();
+    private final TextArea description = new TextArea();
+    private final Grid<RecipeIngredient> recipeIngredients;
+    private final Button cancel = new Button("Cancel");
+    private final Button save = new Button("Save");
+    private final Button delete = new Button("Delete");
 
-    private Button cancel = new Button("Cancel");
-    private Button save = new Button("Save");
-    private Button delete = new Button("Delete");
-
-    private Binder<Recipe> binder;
-
+    private final Binder<Recipe> binder;
     private Recipe recipe = new Recipe();
 
-    private RecipeService recipeService;
+    private final RecipeService recipeService;
 
     public RecipeView(@Autowired RecipeService recipeService) {
         setId("recipe-view");
@@ -55,12 +53,12 @@ public class RecipeView extends Div {
         // Configure Grid
         grid = new Grid<>(Recipe.class);
         grid.setColumns("name");
-        grid.setDataProvider(new CrudServiceDataProvider<Recipe, Void>(recipeService));
+        grid.setDataProvider(new CrudServiceDataProvider<Recipe, Void>(this.recipeService));
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
         grid.setHeightFull();
 
-        ingredients = new Grid<>(RecipeIngredient.class);
-        ingredients.setColumns("amount", "ingredient.unit", "ingredient.name");
+        recipeIngredients = new Grid<>(RecipeIngredient.class);
+        recipeIngredients.setColumns("amount", "ingredient.unit", "ingredient.name");
 
         // when a row is selected or deselected, populate form
         grid.asSingleSelect().addValueChangeListener(event -> {
@@ -95,7 +93,7 @@ public class RecipeView extends Div {
                     this.recipe = new Recipe();
                 }
                 binder.writeBean(this.recipe);
-                recipeService.update(this.recipe);
+                this.recipeService.update(this.recipe);
                 clearForm();
                 refreshGrid();
                 Notification.show("Recipe details stored.");
@@ -106,7 +104,7 @@ public class RecipeView extends Div {
 
         delete.addClickListener(e -> {
             if (recipe != null) {
-                recipeService.delete(recipe.getId());
+                this.recipeService.delete(recipe.getId());
                 clearForm();
                 refreshGrid();
                 Notification.show("Recipe deleted.");
@@ -123,7 +121,7 @@ public class RecipeView extends Div {
     }
 
     private void populateIngredients(Recipe recipe) {
-        ingredients.setItems(recipe.getIngredients());
+        recipeIngredients.setItems(recipe.getIngredients());
     }
 
     private void createEditorLayout(SplitLayout splitLayout) {
@@ -140,7 +138,6 @@ public class RecipeView extends Div {
         editorDiv.add(formLayout);
 
         createIngredientsLayout(editorLayoutDiv);
-
         createButtonLayout(editorLayoutDiv);
 
         splitLayout.addToSecondary(editorLayoutDiv);
@@ -151,7 +148,7 @@ public class RecipeView extends Div {
         ingredientsLayout.setId("ingredients-layout");
         ingredientsLayout.setWidthFull();
         ingredientsLayout.setSpacing(true);
-        ingredientsLayout.add(ingredients);
+        ingredientsLayout.add(recipeIngredients);
         editorLayoutDiv.add(ingredientsLayout);
     }
 

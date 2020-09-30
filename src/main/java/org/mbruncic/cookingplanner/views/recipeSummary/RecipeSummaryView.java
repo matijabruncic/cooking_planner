@@ -33,16 +33,17 @@ import java.util.stream.Stream;
 public class RecipeSummaryView extends Div {
 
     private Set<IngredientSummary> ingredientSummarySet;
-    private MultiSelectListBox<Recipe> allRecipes;
-    private RecipeService recipeService;
-    private Grid<IngredientSummary> ingredientSummaryGrid=new Grid<>(IngredientSummary.class);
+    private final MultiSelectListBox<Recipe> allRecipes;
+    private final Grid<IngredientSummary> ingredientSummaryGrid=new Grid<>(IngredientSummary.class);
+
+    private final RecipeService recipeService;
 
     public RecipeSummaryView(@Autowired RecipeService recipeService) {
         setId("recipeSummary-view");
         this.recipeService = recipeService;
         // Configure list
         allRecipes = new MultiSelectListBox<>();
-        allRecipes.setDataProvider(new CrudServiceDataProvider<Recipe, Void>(recipeService));
+        allRecipes.setDataProvider(new CrudServiceDataProvider<Recipe, Void>(this.recipeService));
         allRecipes.setHeightFull();
         allRecipes.setRenderer(new ComponentRenderer<>((SerializableFunction<Recipe, Span>) recipe -> new Span(recipe.getName())));
 
@@ -74,10 +75,9 @@ public class RecipeSummaryView extends Div {
                     }
                 }
             }
-            Set<IngredientSummary> ingredientSummarySet = amountOfIngredients.entrySet().stream()
+            this.ingredientSummarySet = amountOfIngredients.entrySet().stream()
                     .map(e -> new IngredientSummary(e.getKey(), e.getValue()))
                     .collect(Collectors.toSet());
-            this.ingredientSummarySet = ingredientSummarySet;
             this.ingredientSummaryGrid.setItems(this.ingredientSummarySet);
         });
 
@@ -106,10 +106,6 @@ public class RecipeSummaryView extends Div {
         wrapper.setWidthFull();
         splitLayout.addToPrimary(wrapper);
         wrapper.add(allRecipes);
-    }
-
-    private void refreshGrid() {
-        allRecipes.getDataProvider().refreshAll();
     }
 
 }

@@ -25,7 +25,7 @@ public void setDescription(String description) {
 }
 
 private Set<RecipeIngredient> ingredients;
-@OneToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
+@OneToMany(fetch = FetchType.EAGER )
 @JoinColumn( name = "recipe_id")
 public Set<RecipeIngredient> getIngredients() {
   return ingredients;
