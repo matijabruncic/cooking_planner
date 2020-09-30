@@ -22,6 +22,7 @@ import com.vaadin.flow.theme.lumo.Lumo;
 import org.mbruncic.cookingplanner.views.ingredient.IngredientView;
 import org.mbruncic.cookingplanner.views.recipe.RecipeView;
 import org.mbruncic.cookingplanner.views.recipeIngredient.RecipeIngredientView;
+import org.mbruncic.cookingplanner.views.recipeSummary.RecipeSummaryView;
 
 import java.util.Optional;
 
@@ -87,7 +88,8 @@ public class MainView extends AppLayout {
         return new Tab[] {
             createTab("Recipe", RecipeView.class),
             createTab("RecipeIngredient", RecipeIngredientView.class),
-            createTab("Ingredient", IngredientView.class)
+            createTab("Ingredient", IngredientView.class),
+            createTab("RecipeSummary", RecipeSummaryView.class)
         };
     }
 
