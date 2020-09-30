@@ -17,6 +17,7 @@ public String getName() {
 public void setName(String name) {
   this.name = name;
 }
+
 @PropertyId("unit")
 private Unit unit;
 public Unit getUnit() {

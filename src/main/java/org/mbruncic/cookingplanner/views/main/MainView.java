@@ -1,15 +1,13 @@
 package org.mbruncic.cookingplanner.views.main;
 
-import java.util.Optional;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -20,10 +18,12 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
-import org.mbruncic.cookingplanner.views.main.MainView;
-import org.mbruncic.cookingplanner.views.recipe.RecipeView;
-import org.mbruncic.cookingplanner.views.ingredient.IngredientView;
 import com.vaadin.flow.theme.lumo.Lumo;
+import org.mbruncic.cookingplanner.views.ingredient.IngredientView;
+import org.mbruncic.cookingplanner.views.recipe.RecipeView;
+import org.mbruncic.cookingplanner.views.recipeIngredient.RecipeIngredientView;
+
+import java.util.Optional;
 
 /**
  * The main view is a top-level placeholder for other views.
@@ -86,6 +86,7 @@ public class MainView extends AppLayout {
     private Component[] createMenuItems() {
         return new Tab[] {
             createTab("Recipe", RecipeView.class),
+            createTab("RecipeIngredient", RecipeIngredientView.class),
             createTab("Ingredient", IngredientView.class)
         };
     }

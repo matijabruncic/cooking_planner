@@ -1,6 +1,8 @@
 package org.mbruncic.cookingplanner.views.ingredient;
 
 public enum Unit {
-    GRAM,
-    MILLILITER
+    gr,
+    ml,
+    kom,
+    zlica
 }

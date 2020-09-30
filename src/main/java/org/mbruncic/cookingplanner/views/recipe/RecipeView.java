@@ -60,7 +60,7 @@ public class RecipeView extends Div {
         grid.setHeightFull();
 
         ingredients = new Grid<>(RecipeIngredient.class);
-        ingredients.setColumns("amount", "ingredient.name", "ingredient.unit");
+        ingredients.setColumns("amount", "ingredient.unit", "ingredient.name");
 
         // when a row is selected or deselected, populate form
         grid.asSingleSelect().addValueChangeListener(event -> {

@@ -15,6 +15,7 @@ public String getName() {
 public void setName(String name) {
   this.name = name;
 }
+
 private String description;
 public String getDescription() {
   return description;
@@ -22,6 +23,7 @@ public String getDescription() {
 public void setDescription(String description) {
   this.description = description;
 }
+
 private Set<RecipeIngredient> ingredients;
 @OneToMany( cascade = CascadeType.ALL, fetch = FetchType.EAGER )
 @JoinColumn( name = "recipe_id")
