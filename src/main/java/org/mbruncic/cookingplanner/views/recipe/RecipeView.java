@@ -7,10 +7,12 @@ import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
@@ -68,12 +70,32 @@ public class RecipeView extends Div {
 
     private ComponentEventListener<ClickEvent<Button>> buttonDeleteClickListener() {
         return e -> {
-            if (recipe != null) {
-                this.recipeService.delete(recipe.getId());
-                clearForm();
-                refreshGrid();
-                Notification.show("Recipe deleted.");
-            }
+            Dialog dialog = new Dialog();
+
+            dialog.setCloseOnEsc(false);
+            dialog.setCloseOnOutsideClick(false);
+
+            dialog.add(new Span("Do you really want to delete recipe: '" + recipe.getName() + "'?"));
+
+            HorizontalLayout buttonsLayout = new HorizontalLayout();
+            buttonsLayout.setId("buttons-layout");
+            Button confirmButton = new Button("Delete", event -> {
+                if (recipe != null) {
+                    this.recipeService.delete(recipe.getId());
+                    clearForm();
+                    refreshGrid();
+                    Notification.show("Recipe deleted.");
+                }
+                dialog.close();
+            });
+            confirmButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+            Button cancelButton = new Button("Cancel", event -> {
+                dialog.close();
+            });
+            buttonsLayout.add(confirmButton, cancelButton);
+
+            dialog.add(buttonsLayout);
+            dialog.open();
         };
     }
 
