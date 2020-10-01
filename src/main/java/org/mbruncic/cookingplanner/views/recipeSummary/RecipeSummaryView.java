@@ -64,13 +64,13 @@ public class RecipeSummaryView extends Div {
         // when a row is selected or deselected, populate form
         allRecipes.addSelectionListener(event -> {
             Set<Recipe> value = event.getValue();
-            Map<Ingredient, Integer> amountOfIngredients = new HashMap<>();
+            Map<Ingredient, Double> amountOfIngredients = new HashMap<>();
             for (Recipe recipe : value) {
                 for (RecipeIngredient it : recipe.getIngredients()) {
                     if (!amountOfIngredients.containsKey(it.getIngredient())){
                         amountOfIngredients.put(it.getIngredient(), it.getAmount());
                     } else {
-                        Integer subtotal = amountOfIngredients.get(it.getIngredient());
+                        Double subtotal = amountOfIngredients.get(it.getIngredient());
                         amountOfIngredients.put(it.getIngredient(), subtotal+it.getAmount());
                     }
                 }

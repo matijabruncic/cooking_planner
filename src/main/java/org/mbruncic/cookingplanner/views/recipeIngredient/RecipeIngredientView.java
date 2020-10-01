@@ -13,7 +13,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
-import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.PageTitle;
@@ -39,7 +39,7 @@ public class RecipeIngredientView extends Div {
 
     private final Grid<RecipeIngredient> grid;
 
-    private final IntegerField amount = new IntegerField();
+    private final NumberField amount = new NumberField();
     private final Select<Recipe> recipeSelect = new Select<>();
     private final Select<Ingredient> ingredientSelect = new Select<>();
 

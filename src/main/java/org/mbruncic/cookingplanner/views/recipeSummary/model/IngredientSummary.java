@@ -5,9 +5,9 @@ import org.mbruncic.cookingplanner.data.entity.Ingredient;
 public class IngredientSummary {
 
     private final Ingredient ingredient;
-    private final Integer amount;
+    private final double amount;
 
-    public IngredientSummary(Ingredient ingredient, Integer amount) {
+    public IngredientSummary(Ingredient ingredient, double amount) {
         this.ingredient = ingredient;
         this.amount = amount;
     }
@@ -16,7 +16,7 @@ public class IngredientSummary {
         return ingredient;
     }
 
-    public Integer getAmount() {
+    public double getAmount() {
         return amount;
     }
 }

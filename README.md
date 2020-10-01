@@ -67,5 +67,4 @@ CREATE DATABASE cooking_planner;
 
 TODO:
 ```
-* numbers are not double
 ```
