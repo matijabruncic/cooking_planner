@@ -25,6 +25,7 @@ import org.mbruncic.cookingplanner.views.main.MainView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.artur.helpers.CrudServiceDataProvider;
 
+import java.util.Collections;
 import java.util.Optional;
 
 @Route(value = "recipe", layout = MainView.class)
@@ -67,7 +68,6 @@ public class RecipeView extends Div {
                 // when a row is selected but the data is no longer available, refresh grid
                 if (recipeFromBackend.isPresent()) {
                     populateForm(recipeFromBackend.get());
-                    populateIngredients(recipeFromBackend.get());
                 } else {
                     refreshGrid();
                 }
@@ -121,7 +121,11 @@ public class RecipeView extends Div {
     }
 
     private void populateIngredients(Recipe recipe) {
-        recipeIngredients.setItems(recipe.getIngredients());
+        if (recipe == null) {
+            recipeIngredients.setItems(Collections.emptyList());
+        } else {
+            recipeIngredients.setItems(recipe.getIngredients());
+        }
     }
 
     private void createEditorLayout(SplitLayout splitLayout) {
@@ -189,6 +193,7 @@ public class RecipeView extends Div {
 
     private void populateForm(Recipe value) {
         this.recipe = value;
+        populateIngredients(recipe);
         binder.readBean(this.recipe);
     }
 }
