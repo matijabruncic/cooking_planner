@@ -36,4 +36,10 @@
   flex-wrap: wrap;
   background-color: var(--lumo-contrast-5pct);
   padding: var(--lumo-space-s) var(--lumo-space-l);
+  position: absolute;
+  bottom: 0;
+}
+
+#ingredients-layout {
+  bottom: 0;
 }

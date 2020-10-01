@@ -1,6 +1,9 @@
 package org.mbruncic.cookingplanner.views.recipe;
 
 import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -34,11 +37,11 @@ import java.util.Optional;
 @RouteAlias(value = "", layout = MainView.class)
 public class RecipeView extends Div {
 
-    private final Grid<Recipe> grid;
+    private final Grid<Recipe> grid = new Grid<>(Recipe.class);
 
     private final TextField name = new TextField();
     private final TextArea description = new TextArea();
-    private final Grid<RecipeIngredient> recipeIngredients;
+    private final Grid<RecipeIngredient> recipeIngredients = new Grid<>(RecipeIngredient.class);
     private final Button cancel = new Button("Cancel");
     private final Button save = new Button("Save");
     private final Button delete = new Button("Delete");
@@ -51,43 +54,31 @@ public class RecipeView extends Div {
     public RecipeView(@Autowired RecipeService recipeService) {
         setId("recipe-view");
         this.recipeService = recipeService;
-        // Configure Grid
-        grid = new Grid<>(Recipe.class);
-        grid.setColumns("name");
-        grid.setDataProvider(new CrudServiceDataProvider<Recipe, Void>(this.recipeService));
-        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-        grid.setHeightFull();
-
-        recipeIngredients = new Grid<>(RecipeIngredient.class);
-        recipeIngredients.setColumns("amount", "ingredient.unit", "ingredient.name");
-
-        // when a row is selected or deselected, populate form
-        grid.asSingleSelect().addValueChangeListener(event -> {
-            if (event.getValue() != null) {
-                Optional<Recipe> recipeFromBackend = recipeService.get(event.getValue().getId());
-                // when a row is selected but the data is no longer available, refresh grid
-                if (recipeFromBackend.isPresent()) {
-                    populateForm(recipeFromBackend.get());
-                } else {
-                    refreshGrid();
-                }
-            } else {
-                clearForm();
-            }
-        });
-
-        // Configure Form
         binder = new Binder<>(Recipe.class);
-
-        // Bind fields. This where you'd define e.g. validation rules
         binder.bindInstanceFields(this);
 
-        cancel.addClickListener(e -> {
-            clearForm();
-            refreshGrid();
-        });
+        SplitLayout recipeLayout = new SplitLayout();
+        recipeLayout.setSizeFull();
 
-        save.addClickListener(e -> {
+        recipeLayout.addToPrimary(createGridLayout());
+        recipeLayout.addToSecondary(createEditorLayout());
+
+        add(recipeLayout);
+    }
+
+    private ComponentEventListener<ClickEvent<Button>> buttonDeleteClickListener() {
+        return e -> {
+            if (recipe != null) {
+                this.recipeService.delete(recipe.getId());
+                clearForm();
+                refreshGrid();
+                Notification.show("Recipe deleted.");
+            }
+        };
+    }
+
+    private ComponentEventListener<ClickEvent<Button>> buttonSaveClickListener() {
+        return e -> {
             try {
                 if (this.recipe == null) {
                     this.recipe = new Recipe();
@@ -100,24 +91,30 @@ public class RecipeView extends Div {
             } catch (ValidationException validationException) {
                 Notification.show("An exception happened while trying to store the recipe details.");
             }
-        });
+        };
+    }
 
-        delete.addClickListener(e -> {
-            if (recipe != null) {
-                this.recipeService.delete(recipe.getId());
+    private ComponentEventListener<ClickEvent<Button>> buttonCancelClickListener() {
+        return e -> {
+            clearForm();
+            refreshGrid();
+        };
+    }
+
+    private HasValue.ValueChangeListener<AbstractField.ComponentValueChangeEvent<Grid<Recipe>, Recipe>> gridValueChangeListener(RecipeService recipeService) {
+        return event -> {
+            if (event.getValue() != null) {
+                Optional<Recipe> recipeFromBackend = recipeService.get(event.getValue().getId());
+                // when a row is selected but the data is no longer available, refresh grid
+                if (recipeFromBackend.isPresent()) {
+                    populateForm(recipeFromBackend.get());
+                } else {
+                    refreshGrid();
+                }
+            } else {
                 clearForm();
-                refreshGrid();
-                Notification.show("Recipe deleted.");
             }
-        });
-
-        SplitLayout splitLayout = new SplitLayout();
-        splitLayout.setSizeFull();
-
-        createGridLayout(splitLayout);
-        createEditorLayout(splitLayout);
-
-        add(splitLayout);
+        };
     }
 
     private void populateIngredients(Recipe recipe) {
@@ -128,52 +125,64 @@ public class RecipeView extends Div {
         }
     }
 
-    private void createEditorLayout(SplitLayout splitLayout) {
+    private Div createEditorLayout() {
         Div editorLayoutDiv = new Div();
         editorLayoutDiv.setId("editor-layout");
 
-        Div editorDiv = new Div();
-        editorDiv.setId("editor");
-        editorLayoutDiv.add(editorDiv);
+        editorLayoutDiv.add(createFormLayout());
+        editorLayoutDiv.add(createIngredientsLayout());
+        editorLayoutDiv.add(createButtonLayout());
 
-        FormLayout formLayout = new FormLayout();
-        addFormItem(editorDiv, formLayout, name, "Name");
-        addFormItem(editorDiv, formLayout, description, "Description");
-        editorDiv.add(formLayout);
-
-        createIngredientsLayout(editorLayoutDiv);
-        createButtonLayout(editorLayoutDiv);
-
-        splitLayout.addToSecondary(editorLayoutDiv);
+        return editorLayoutDiv;
     }
 
-    private void createIngredientsLayout(Div editorLayoutDiv) {
+    private FormLayout createFormLayout() {
+        FormLayout formLayout = new FormLayout();
+        formLayout.addFormItem(name, "Name");
+        formLayout.addFormItem(description, "Description");
+        return formLayout;
+    }
+
+    private HorizontalLayout createIngredientsLayout() {
         HorizontalLayout ingredientsLayout = new HorizontalLayout();
         ingredientsLayout.setId("ingredients-layout");
         ingredientsLayout.setWidthFull();
         ingredientsLayout.setSpacing(true);
+
+        recipeIngredients.setColumns("amount", "ingredient.unit", "ingredient.name");
         ingredientsLayout.add(recipeIngredients);
-        editorLayoutDiv.add(ingredientsLayout);
+        return ingredientsLayout;
     }
 
-    private void createButtonLayout(Div editorLayoutDiv) {
+    private HorizontalLayout createButtonLayout() {
         HorizontalLayout buttonLayout = new HorizontalLayout();
         buttonLayout.setId("button-layout");
         buttonLayout.setWidthFull();
         buttonLayout.setSpacing(true);
-        cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        save.addClickListener(buttonSaveClickListener());
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        cancel.addClickListener(buttonCancelClickListener());
+        cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        delete.addClickListener(buttonDeleteClickListener());
         delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         buttonLayout.add(save, cancel, delete);
-        editorLayoutDiv.add(buttonLayout);
+        return buttonLayout;
     }
 
-    private void createGridLayout(SplitLayout splitLayout) {
-        Div wrapper = new Div();
-        wrapper.setId("grid-wrapper");
-        wrapper.setWidthFull();
-        splitLayout.addToPrimary(wrapper);
-        wrapper.add(grid);
+    private Div createGridLayout() {
+        Div gridLayout = new Div();
+        gridLayout.setId("grid-layout");
+        grid.setColumns("name");
+        grid.setDataProvider(new CrudServiceDataProvider<Recipe, Void>(this.recipeService));
+        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+        grid.setHeightFull();
+        grid.asSingleSelect().addValueChangeListener(gridValueChangeListener(recipeService));
+
+        gridLayout.add(grid);
+        return gridLayout;
     }
 
     private void addFormItem(Div wrapper, FormLayout formLayout, AbstractField field, String fieldName) {
