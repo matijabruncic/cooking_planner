@@ -64,3 +64,9 @@ CREATE USER 'app'@'%' IDENTIFIED BY 'pass';
 GRANT ALL PRIVILEGES ON *.* TO 'app'@'%' WITH GRANT OPTION;
 CREATE DATABASE cooking_planner;
 ```
+
+TODO:
+```
+* numbers are not double
+* cancel on recipe doesn't clean list of ingredients
+```
