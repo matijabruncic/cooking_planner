@@ -67,4 +67,6 @@ CREATE DATABASE cooking_planner;
 
 TODO:
 ```
+* recept se moze spremiti bez imena
+* dodati sastojke koji nemaju mjeru, samo ih moramo imati (sol, ketchup, sezam ...)
 ```
