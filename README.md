@@ -48,13 +48,16 @@ Once configurations are set clicking `Run` will start the application
 To build the Dockerized version of the project, run
 
 ```
-docker build . -t myapp:latest
+docker build . -t mats990/cooking_planner:VERSION
+docker push mats990/cooking_planner:VERSION
 ```
 
-Once the Docker image is correctly built, you can test it locally using
+Once the Docker image is correctly built, you can run it
 
 ```
 docker run -p 8080:8080 myapp:latest
+
+sudo docker run -p 3007:8080 --name cooking_planner_app -e SPRING_DATASOURCE_URL=jdbc:mysql://172.31.18.242:3306/cooking_planner -m 300m mats990/cooking_planner:1.1-SNAPSHOT
 ```
 
 ```
