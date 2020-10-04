@@ -25,6 +25,7 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import org.apache.commons.lang3.StringUtils;
 import org.mbruncic.cookingplanner.data.entity.Ingredient;
 import org.mbruncic.cookingplanner.data.entity.Recipe;
 import org.mbruncic.cookingplanner.data.entity.RecipeIngredient;
@@ -119,6 +120,10 @@ public class RecipeView extends Div {
                     this.recipe = new Recipe();
                 }
                 binder.writeBean(this.recipe);
+                if (StringUtils.isBlank(this.recipe.getName())) {
+                    Notification.show("Cannot save recipe without a name");
+                    return;
+                }
                 this.recipeService.update(this.recipe);
                 clearForm();
                 refreshGrid();
@@ -202,15 +207,21 @@ public class RecipeView extends Div {
 
             HorizontalLayout amountLayout = new HorizontalLayout();
             NumberField amountField = new NumberField();
+            amountField.setValue(0.0);
             Span amountUnit = new Span();
             amountLayout.add(amountField, amountUnit);
-            formLayout.addFormItem(amountLayout, "Amount");
 
             Select<Ingredient> ingredientSelect = new Select<>();
             ingredientSelect.setItems(this.ingredientService.list(Pageable.unpaged()).getContent());
-            ingredientSelect.addValueChangeListener(e -> amountUnit.setText(e.getValue().getUnit().toString()));
+            ingredientSelect.addValueChangeListener(e -> {
+                if (e.getValue().getUnit() != null) {
+                    amountUnit.setText(e.getValue().getUnit().toString());
+                }
+            });
             ingredientSelect.setTextRenderer((ItemLabelGenerator<Ingredient>) Ingredient::getName);
+
             formLayout.addFormItem(ingredientSelect, "Ingredient");
+            formLayout.addFormItem(amountLayout, "Amount");
 
             HorizontalLayout buttonLayout = new HorizontalLayout();
             Button save = new Button("Save");

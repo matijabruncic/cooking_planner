@@ -71,7 +71,8 @@ public class RecipeSummaryView extends Div {
                         amountOfIngredients.put(it.getIngredient(), it.getAmount());
                     } else {
                         Double subtotal = amountOfIngredients.get(it.getIngredient());
-                        amountOfIngredients.put(it.getIngredient(), subtotal+it.getAmount());
+                        double roundedTo2Decimals = Math.round((subtotal + it.getAmount()) * 100) / (double) 100;
+                        amountOfIngredients.put(it.getIngredient(), roundedTo2Decimals);
                     }
                 }
             }
